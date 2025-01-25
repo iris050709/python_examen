@@ -7,7 +7,10 @@ class User(db.Model):
 
     # Eliminar el constructor __init__()
     # El constructor predeterminado de SQLAlchemy asignará los valores directamente
-
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+        
     def to_dict(self):
         return {
             "id": self.id,

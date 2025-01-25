@@ -5,9 +5,12 @@ from config import db
     # FUNCION PARA OBTENER USUARIOS
 def get_all_users():
     users = User.query.all()
-    
+    try: 
     # LISTA DE USUARIOS
-    return [{"id": user.id, "name": user.name, "email": user.email} for user in users]
+        return [ user.to_dict() for user in users]
+    except Exception as error:
+        print(f"ERROR {error}")
+        #return jsonify({ "Error" : error}) 
 
     # FUNCION PARA BUSCAR USUARIO POR ID
 def get_user_by_id(user_id):
@@ -20,30 +23,20 @@ def get_user_by_id(user_id):
         return {"message": "Usuario no encontrado"}, 404
 
     # FUNCION PARA CREAR USUARIO
-def create_user():
-    # OBTENER DATOS
-    data = request.get_json()
-
-    # Validar que los campos requeridos estén presentes
-    if not data.get('name') or not data.get('email'):
-        return jsonify({"message": "Faltan datos requeridos: 'name' o 'email'"}), 400
-
-    # Verificar si el correo electrónico ya está registrado
-    if User.query.filter_by(email=data['email']).first():
-        return jsonify({"message": "El correo electrónico ya está registrado."}), 400
-
+def create_user(name, email):
     try:
         # NUEVA INSTANCIA PARA EL USUARIO
-        new_user = User(name=data['name'], email=data['email'])
+        new_user = User(name, email)
 
         # AGREGAR EL NUEVO USUARIO A LA BD
         db.session.add(new_user)
         db.session.commit()
 
         # MOSTRAR DATOS DEL USUARIO CREADO
-        return jsonify({"id": new_user.id, "name": new_user.name, "email": new_user.email}), 201
+        return new_user.to_dict()
 
     except Exception as e:
+        print(f"ERROR{e}")
         # En caso de error, hacer rollback en la transacción
         db.session.rollback()
         return jsonify({"message": f"Error al crear el usuario: {str(e)}"}), 500
