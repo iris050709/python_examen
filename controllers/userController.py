@@ -14,19 +14,30 @@ def get_all_users():
 
     # FUNCION PARA BUSCAR USUARIO POR ID
 def get_user_by_id(user_id):
-    user = User.query.get(user_id)
-    
-    # Verificar si el usuario existe
-    if user:
-        return {"id": user.id, "name": user.name, "email": user.email}
-    else:
-        return {"message": "Usuario no encontrado"}, 404
+    try:
+        # Buscar el usuario por ID
+        user = User.query.get(user_id)
+        
+        # Verificar si el usuario existe
+        if user:
+            return jsonify(user.to_dict())
+        else:
+            return jsonify({"message": "Usuario no encontrado"}), 404
+
+    except Exception as error:
+        print(f"ERROR: {error}")
+        return jsonify({"message": "Error al obtener el usuario"}), 500
 
     # FUNCION PARA CREAR USUARIO
 def create_user(name, email):
     try:
+        # Verificar si ya existe un usuario con el mismo correo electrónico
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            return jsonify({"message": "El correo electrónico ya está registrado"}), 400
+        
         # NUEVA INSTANCIA PARA EL USUARIO
-        new_user = User(name, email)
+        new_user = User(name=name, email=email)
 
         # AGREGAR EL NUEVO USUARIO A LA BD
         db.session.add(new_user)
@@ -36,62 +47,58 @@ def create_user(name, email):
         return new_user.to_dict()
 
     except Exception as e:
-        print(f"ERROR{e}")
+        print(f"ERROR: {e}")
         # En caso de error, hacer rollback en la transacción
         db.session.rollback()
         return jsonify({"message": f"Error al crear el usuario: {str(e)}"}), 500
 
     # EDITAR USUARIO POR ID
-def update_user(user_id):
-    # OBTENER DATOS
-    data = request.get_json()
-
-    # VALIDAR DATOS
-    if not data.get('name') and not data.get('email'):
-        return jsonify({"message": "Faltan datos a actualizar: 'name' o 'email'"}), 400
-    
-    if User.query.filter_by(email=data['email']).first():
-        return jsonify({"message": "El correo electrónico ya está registrado."}), 400
-
-    # BUSCAR AL USUARIO POR SU ID
-    user = User.query.get(user_id)
-    # SI NO SE ENCUENTRA QUE MANDE UN MENSAJE DE QUE NO SE ENCONTRO EL USUARIO
-    if not user:
-        return jsonify({"message": "Usuario no encontrado"}), 404
-
+def update_user(user_id, name, email):
     try:
-        # ACTUALIZAR DATOS
-        if data.get('name'):
-            user.name = data['name']
-        if data.get('email'):
-            user.email = data['email']
+        # BUSCAR EL USUARIO EXISTENTE POR ID
+        user = User.query.get(user_id)
 
-        # GUARDAR CAMBIOS EN LA BD
+        # Verificar si el usuario existe
+        if not user:
+            return jsonify({"message": "Usuario no encontrado"}), 404
+
+        # Verificar si ya existe un usuario con el mismo correo (excluyendo el usuario actual)
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user and existing_user.id != user_id:
+            return jsonify({"message": "El correo electrónico ya está registrado"}), 400
+
+        # ACTUALIZAR LOS DATOS DEL USUARIO
+        user.name = name
+        user.email = email
+
+        # GUARDAR LOS CAMBIOS EN LA BASE DE DATOS
         db.session.commit()
 
-        # MOSTRAR DATOS ACTUALIZADOS
-        return jsonify({"id": user.id, "name": user.name, "email": user.email}), 200
+        # DEVOLVER LOS DATOS ACTUALIZADOS DEL USUARIO
+        return user.to_dict()
 
     except Exception as e:
+        print(f"ERROR: {e}")
         db.session.rollback()
         return jsonify({"message": f"Error al actualizar el usuario: {str(e)}"}), 500
 
     # ELIMINAR USUARIO POR ID
 def delete_user(user_id):
-    # BUSCAR AL USUARIO POR ID
-    user = User.query.get(user_id)
-
-    if not user:
-        return jsonify({"message": "Usuario no encontrado"}), 404
-
     try:
-        # ELIMINAR USUARIO DE LA BD
+        # Buscar el usuario por ID
+        user = User.query.get(user_id)
+        
+        # Si no existe el usuario, devolver error
+        if not user:
+            return {"message": "Usuario no encontrado"}, 404
+        
+        # Eliminar el usuario
         db.session.delete(user)
         db.session.commit()
 
-        # MOSTRAR MENSAJE DE CONFIRMACION 
-        return jsonify({"message": "Usuario eliminado exitosamente"}), 200
+        return {"message": "Usuario eliminado exitosamente"}
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({"message": f"Error al eliminar el usuario: {str(e)}"}), 500
+        print(f"ERROR: {e}")
+        return {"message": f"Error al eliminar el usuario: {str(e)}"}, 500
