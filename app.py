@@ -1,18 +1,24 @@
 from flask import Flask
 from config import db, migrate
-from routes.user import user_bp
+from dotenv import load_dotenv
+import os
 
+# Cargar variables de entorno
+load_dotenv()
+
+# Crear instancia de Flask
 app = Flask(__name__)
 
-# Configuración de conexión a MySQL 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/app_db'
+# Configuración de la base de datos
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Inicialización de base de datos y migraciones
+# Inicializar extensiones
 db.init_app(app)
 migrate.init_app(app, db)
 
-# Registro de Blueprints / rutas
+# Registrar rutas
+from routes.user import user_bp
 app.register_blueprint(user_bp, url_prefix='/users')
 
 if __name__ == '__main__':
