@@ -31,11 +31,6 @@ def get_user_by_id(user_id):
     # FUNCION PARA CREAR USUARIO
 def create_user(name, email):
     try:
-        # Verificar si ya existe un usuario con el mismo correo electrónico
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            return jsonify({"message": "El correo electrónico ya está registrado"}), 400
-        
         # NUEVA INSTANCIA PARA EL USUARIO
         new_user = User(name=name, email=email)
 
@@ -48,9 +43,6 @@ def create_user(name, email):
 
     except Exception as e:
         print(f"ERROR: {e}")
-        # En caso de error, hacer rollback en la transacción
-        db.session.rollback()
-        return jsonify({"message": f"Error al crear el usuario: {str(e)}"}), 500
 
     # EDITAR USUARIO POR ID
 def update_user(user_id, name, email):
@@ -79,8 +71,6 @@ def update_user(user_id, name, email):
 
     except Exception as e:
         print(f"ERROR: {e}")
-        db.session.rollback()
-        return jsonify({"message": f"Error al actualizar el usuario: {str(e)}"}), 500
 
     # ELIMINAR USUARIO POR ID
 def delete_user(user_id):
@@ -99,6 +89,4 @@ def delete_user(user_id):
         return {"message": "Usuario eliminado exitosamente"}
 
     except Exception as e:
-        db.session.rollback()
         print(f"ERROR: {e}")
-        return {"message": f"Error al eliminar el usuario: {str(e)}"}, 500
