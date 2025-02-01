@@ -26,19 +26,19 @@ def get_user_by_id(user_id):
 
     except Exception as error:
         print(f"ERROR: {error}")
-        return jsonify({"message": "Error al obtener el usuario"}), 500
 
-    # FUNCION PARA CREAR USUARIO
+# FUNCION PARA CREAR USUARIO
 def create_user(name, email):
     try:
-        # NUEVA INSTANCIA PARA EL USUARIO
-        new_user = User(name=name, email=email)
+        # Verificar si el email ya está registrado
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            return {"message": "El correo electrónico ya está registrado"}, 400
 
-        # AGREGAR EL NUEVO USUARIO A LA BD
+        new_user = User(name=name, email=email)
         db.session.add(new_user)
         db.session.commit()
 
-        # MOSTRAR DATOS DEL USUARIO CREADO
         return new_user.to_dict()
 
     except Exception as e:
