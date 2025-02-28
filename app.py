@@ -3,6 +3,7 @@ from config import db, migrate
 from dotenv import load_dotenv
 import os
 from flask_cors import CORS
+from flask_swagger_ui import get_swaggerui_blueprint
 
 # Cargar variables de entorno
 load_dotenv()
@@ -10,6 +11,16 @@ load_dotenv()
 # Crear instancia de Flask
 app = Flask(__name__) 
 CORS(app)
+
+SWAGGER_URL = "/api/docs"  
+API_URL = "/static/swagger.yaml"  
+
+
+swaggerui_blueprint = get_swaggerui_blueprint(SWAGGER_URL, API_URL)
+
+
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+
 
 # Configuración de la base de datos
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
