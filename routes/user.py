@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from controllers.userController import get_all_users, get_user_by_id, create_user, update_user, delete_user
+from controllers.userController import get_all_users, get_user_by_id, create_user, update_user, delete_user, login_user
 
 ##EL PAYLOAD SON DATOS QUE SE ENVIAN
 
@@ -24,8 +24,9 @@ def user_Store():
     data = request.get_json()
     email = data.get('email')
     name = data.get('name')
-    print(f"NAME {name} --- EMAIL {email}")
-    new_user = create_user(name, email)
+    password = data.get('password')
+    print(f"NAME {name} --- EMAIL {email} --- PASSWORD {password}")
+    new_user = create_user(name, email, password)
     return jsonify(new_user)
 
 # ACTUALIZAR USUARIO POR ID
@@ -52,3 +53,8 @@ def user_delete(user_id):
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"message": f"Error al eliminar el usuario: {str(e)}"}), 500
+    
+@user_bp.route('/login', methods = ['POST'])
+def login():
+    data = request.get_json()
+    return login_user(data['email'], data['password'])

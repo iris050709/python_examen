@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask_jwt_extended import JWTManager
 
 # Cargar variables de entorno
 load_dotenv()
@@ -11,6 +12,8 @@ load_dotenv()
 # Crear instancia de Flask
 app = Flask(__name__) 
 CORS(app)
+app.config['JWT_SECRET_KEY'] = 'HOLAAAAAAA'
+jwt = JWTManager(app)
 
 SWAGGER_URL = "/api/docs"  
 API_URL = "/static/swagger.yaml"  

@@ -17,6 +17,21 @@ components:
           type: string
         message:
           type: string
+          
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            email:
+              type: string
 
 paths:
   /:
@@ -91,6 +106,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+
   /{user_id}:
     get:
       summary: Obtener un usuario por ID
@@ -155,7 +171,18 @@ paths:
                   type: string
       responses:
         '200':
-          description: Usuario actualizado correctamente.
+          description: Usuario actualizado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
         '400':
           description: Datos inválidos. Verifique que los campos sean correctos y completos.
           content:
@@ -185,7 +212,14 @@ paths:
             type: integer
       responses:
         '200':
-          description: Usuario eliminado correctamente.
+          description: Usuario eliminado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         '400':
           description: ID de usuario inválido. Debe ser un número entero.
           content:
@@ -194,6 +228,50 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Usuario no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor. Inténtelo más tarde.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /login:
+    post:
+      summary: Iniciar sesión de usuario
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Inicio de sesión exitoso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Datos inválidos. Verifique las credenciales proporcionadas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Credenciales incorrectas.
           content:
             application/json:
               schema:

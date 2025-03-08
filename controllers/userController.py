@@ -11,7 +11,7 @@ def get_all_users():
         return [ user.to_dict() for user in users]
     except Exception as error:
         print(f"ERROR {error}")
-        #return jsonify({ "Error" : error}) 
+        return jsonify({ "msg" : "ERROR AL OBTENER USUARIOS" }), 500
 
     # FUNCION PARA BUSCAR USUARIO POR ID
 def get_user_by_id(user_id):
@@ -29,14 +29,14 @@ def get_user_by_id(user_id):
         print(f"ERROR: {error}")
 
 # FUNCION PARA CREAR USUARIO
-def create_user(name, email):
+def create_user(name, email, password):
     try:
         # Verificar si el email ya está registrado
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             return {"message": "El correo electrónico ya está registrado"}, 400
 
-        new_user = User(name=name, email=email)
+        new_user = User(name=name, email=email, password=password)
         db.session.add(new_user)
         db.session.commit()
 
@@ -44,6 +44,7 @@ def create_user(name, email):
 
     except Exception as e:
         print(f"ERROR: {e}")
+        return jsonify({ 'msg' : "ERROR AL CREAR USUARIO" }), 500
 
     # EDITAR USUARIO POR ID
 def update_user(user_id, name, email):
@@ -93,15 +94,16 @@ def delete_user(user_id):
         print(f"ERROR: {e}")
 
 def login_user(email, password):
-    user = User.query.filter_by(email = email).first()
-    if user and user.checkpassword(password):
-        access_token = create_access_token(identity = user.id)
+    user = User.query.filter_by(email=email).first()
+    if user and user.check_password(password): 
+        access_token = create_access_token(identity=user.id)
         return jsonify({
             'access_token': access_token,
             'user': {
                 "id": user.id,
                 "name": user.name,
                 "email": user.email
-            }      
+            }
         })
-    return jsonify({ "msg" : "CREDENCIALES INVALIDAD "}), 401
+    return jsonify({"msg": "CREDENCIALES INVÁLIDAS"}), 401
+
