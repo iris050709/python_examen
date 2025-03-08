@@ -95,4 +95,4 @@ def delete_user(user_id):
 def login_user(email, password):
     user = User.query.filter_by(email = email).first()
     if user and user.checkpassword(password):
-        access_token = 
+        access_token = create_access_token(identity = user.id)
