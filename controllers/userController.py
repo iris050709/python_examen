@@ -1,6 +1,7 @@
 from models.User import User
 from flask import request, jsonify
 from config import db  
+from flask_jwt_extended import create_access_token
 
     # FUNCION PARA OBTENER USUARIOS
 def get_all_users():
@@ -90,3 +91,8 @@ def delete_user(user_id):
 
     except Exception as e:
         print(f"ERROR: {e}")
+
+def login_user(email, password):
+    user = User.query.filter_by(email = email).first()
+    if user and user.checkpassword(password):
+        access_token = 
