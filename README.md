@@ -1,17 +1,14 @@
-Aquí tienes el contenido completo para un archivo `README.md`, con todos los pasos detallados que mencionaste:
+Claro, aquí está el texto que solicitaste:
 
-```markdown
-# Configuración de Aplicación Flask en Amazon Linux con Nginx y Gunicorn (Clonando desde Git)
+---
+
+**Configuración de Aplicación Flask en Amazon Linux con Nginx y Gunicorn (Clonando desde Git)**
 
 Este documento describe los pasos para configurar una aplicación Flask en una instancia de Amazon Linux utilizando Nginx como servidor web y Gunicorn como servidor WSGI, clonando el código desde un repositorio de Git.
 
-## 1. Permitir tráfico SSH y HTTP
+---
 
-Asegúrate de que el grupo de seguridad de la instancia EC2 permite tráfico en los puertos 22 (SSH), 80 (HTTP) y 443 (HTTPS).
-
-## 2. Instalar MySQL Client
-
-Primero, limpia los paquetes anteriores y luego instala MySQL Client:
+**Instalar MySQL Client**
 
 ```bash
 sudo dnf clean packages
