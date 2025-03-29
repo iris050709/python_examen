@@ -1,4 +1,4 @@
-Claro, aquí está el texto que solicitaste:
+
 
 ---
 
